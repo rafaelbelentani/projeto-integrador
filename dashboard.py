@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -13,7 +14,7 @@ st_autorefresh(interval=10000, key="refresh")
 # 🔐 FIREBASE (corrigido)
 # ==============================
 if not firebase_admin._apps:
-    cred = credentials.Certificate("PI5.json")
+    cred = credentials.Certificate(dict(st.secrets["firebase"]))
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
