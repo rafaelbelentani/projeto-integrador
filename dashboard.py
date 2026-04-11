@@ -1,108 +1,90 @@
-import json
+import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 import firebase_admin
 from firebase_admin import credentials, firestore
-import streamlit as st
 import pandas as pd
 
-# ==============================
-# 🔐 FIREBASE INIT (SEGURO)
-# ==============================
+# =========================
+# 🔐 FIREBASE INIT
+# =========================
 @st.cache_resource
 def init_firebase():
     if not firebase_admin._apps:
         cred = credentials.Certificate(dict(st.secrets["firebase"]))
         firebase_admin.initialize_app(cred)
+
     return firestore.client()
 
 db = init_firebase()
-# ==============================
-# 🎨 CONFIGURAÇÃO DA PÁGINA
-# ==============================
-st.set_page_config(
-    page_title="Dashboard IoT",
-    page_icon="📊",
-    layout="wide"
-)
 
-st.title("📊 Dashboard IoT - Temperatura e Umidade")
-
-# ==============================
-# 📥 CARREGAR DADOS
-# ==============================
-@st.cache_data(ttl=10)
+# =========================
+# 📊 CARREGAR DADOS
+# =========================
+@st.cache_data(ttl=5)
 def carregar_dados():
-    docs = db.collection("leituras").order_by("timestamp").stream()
+    docs = db.collection("leituras").stream()
 
     dados = []
     for doc in docs:
-        d = doc.to_dict()
+        dados.append(doc.to_dict())
 
-        if (
-            d.get("temperatura") is not None and
-            d.get("umidade") is not None and
-            0 < d["temperatura"] < 50 and
-            0 < d["umidade"] < 100
-        ):
-            dados.append({
-                "timestamp": d["timestamp"],
-                "temperatura": d["temperatura"],
-                "umidade": d["umidade"]
-            })
+    df = pd.DataFrame(dados)
 
-    return pd.DataFrame(dados)
+    if df.empty:
+        return df
+
+    df["temperatura"] = pd.to_numeric(df["temperatura"], errors="coerce")
+    df["umidade"] = pd.to_numeric(df["umidade"], errors="coerce")
+
+    return df
+
+
+# =========================
+# 📈 DASHBOARD
+# =========================
+st.title("🌡️ Monitor IoT em Tempo Real")
 
 df = carregar_dados()
 
-# ==============================
-# 📊 PROCESSAMENTO
-# ==============================
+
+from streamlit_autorefresh import st_autorefresh
+
+st.title("🌡️ Monitor IoT em Tempo Real")
+
+st_autorefresh(interval=5000, key="refresh")
+
+# =========================
+# ⚠️ LEITURA ATUAL + ALERTAS
+# =========================
 if not df.empty:
-    df["timestamp"] = pd.to_datetime(df["timestamp"])
-    df = df.sort_values("timestamp")
+    last = df.iloc[-1]
 
-    temp_atual = df["temperatura"].iloc[-1]
-    umid_atual = df["umidade"].iloc[-1]
+    temp = last["temperatura"]
+    hum = last["umidade"]
 
-    # ==============================
-    # 📈 MÉTRICAS (CARDS)
-    # ==============================
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
-    col1.metric("🌡️ Temp Atual", f"{temp_atual:.1f} °C")
-    col2.metric("💧 Umidade Atual", f"{umid_atual:.1f} %")
-    col3.metric("📊 Temp Média", f"{df['temperatura'].mean():.1f} °C")
+    with col1:
+        st.metric("🌡️ Temperatura Atual", f"{temp:.1f} °C")
 
-    # ==============================
-    # 🚨 ALERTA (AGORA FUNCIONA)
-    # ==============================
-    st.subheader("🚨 Status da Temperatura")
+    with col2:
+        st.metric("💧 Umidade Atual", f"{hum:.1f} %")
 
-    if temp_atual > 28:
-        st.error(f"🔥 ALERTA: Temperatura alta! ({temp_atual:.1f} °C)")
-    elif temp_atual > 25:
-        st.warning(f"⚠️ Atenção: Temperatura moderada ({temp_atual:.1f} °C)")
-    else:
-        st.success(f"✅ Temperatura normal ({temp_atual:.1f} °C)")
+    # ALERTAS
+    if temp > 30:
+        st.error("🔥 ALERTA: Temperatura alta!")
+    elif temp < 10:
+        st.warning("❄️ Temperatura muito baixa")
 
-    # ==============================
-    # 📉 SUAVIZAÇÃO (MÉDIA MÓVEL)
-    # ==============================
-    df["temp_suave"] = df["temperatura"].rolling(5).mean()
-    df["umid_suave"] = df["umidade"].rolling(5).mean()
+    if hum < 30:
+        st.warning("💨 Umidade baixa")
 
-    # ==============================
-    # 📊 GRÁFICOS
-    # ==============================
-    st.subheader("📈 Temperatura ao longo do tempo")
-    st.line_chart(df.set_index("timestamp")["temp_suave"])
+    # =========================
+    # 📊 GRÁFICO (ÚNICO)
+    # =========================
+    st.subheader("📊 Monitoramento")
 
-    st.subheader("💧 Umidade ao longo do tempo")
-    st.line_chart(df.set_index("timestamp")["umid_suave"])
+    st.line_chart(df[["temperatura", "umidade"]])
 
 else:
-    st.warning("Sem dados válidos ainda...")
-
-# ==============================
-# 📌 RODAPÉ
-# ==============================
-st.caption("Atualização automática a cada 10 segundos 🚀")
+    st.warning("Sem dados ainda no Firebase")
