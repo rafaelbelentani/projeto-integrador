@@ -1,24 +1,20 @@
-import streamlit as st
 import json
-import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore
-from streamlit_autorefresh import st_autorefresh
+import streamlit as st
+import pandas as pd
 
 # ==============================
-# 🔄 AUTO REFRESH (10 segundos)
+# 🔐 FIREBASE INIT (SEGURO)
 # ==============================
-st_autorefresh(interval=10000, key="refresh")
+@st.cache_resource
+def init_firebase():
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(dict(st.secrets["firebase"]))
+        firebase_admin.initialize_app(cred)
+    return firestore.client()
 
-# ==============================
-# 🔐 FIREBASE (corrigido)
-# ==============================
-if not firebase_admin._apps:
-    cred = credentials.Certificate(dict(st.secrets["firebase"]))
-    firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
+db = init_firebase()
 # ==============================
 # 🎨 CONFIGURAÇÃO DA PÁGINA
 # ==============================
