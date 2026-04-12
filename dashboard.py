@@ -67,8 +67,9 @@ def carregar_dados():
 st.title("🌡️ Monitor IoT em Tempo Real")
 
 # 🔄 auto refresh
-st.warning("Firebase bloqueado temporariamente (quota)")
-st.stop()
+st.title("🌡️ Monitor IoT em Tempo Real")
+
+st_autorefresh(interval=10000, key="refresh")
 
 dados = carregar_dados()
 
@@ -77,7 +78,6 @@ if not dados:
     st.stop()
 
 df = pd.DataFrame(dados)
-
 
 if not df.empty:
     ultima = df.iloc[-1]
