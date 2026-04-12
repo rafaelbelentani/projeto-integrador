@@ -45,11 +45,19 @@ except Exception as e:
 # =========================
 
 def carregar_dados():
-    docs = db.collection("leituras").stream()
+    try:
+        docs = (
+            db.collection("leituras")
+            .order_by("timestamp", direction=firestore.Query.DESCENDING)
+            .limit(30)
+            .stream()
+        )
 
-    dados = [doc.to_dict() for doc in docs]
+        return [doc.to_dict() for doc in docs]
 
-    return dados
+    except Exception as e:
+        st.error(f"Erro Firebase: {e}")
+        return []
 
 # =========================
 # 📈 DASHBOARD
