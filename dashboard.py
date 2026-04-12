@@ -63,7 +63,7 @@ def carregar_dados():
 # 📈 DASHBOARD
 # =========================
 
-st.title("🌡️ MControle de Temperatura")
+st.title("🌡️ Montrole de Temperatura")
 
 # 🔄 auto refresh
 st_autorefresh(interval=5000, key="refresh")
@@ -97,7 +97,7 @@ with col2:
 # 🚨 ALERTA DE TEMPERATURA
 
 if temp >= 28:
-    st.error("🔥 ALERTA: Temperatura alta! (>= 28°C)")
+    st.error("🔥 ALERTA: Temperatura alta!")
 elif temp >= 26:
     st.warning("⚠️ Atenção: Temperatura elevada")
 else:
