@@ -67,7 +67,6 @@ def carregar_dados():
 st.title("🌡️ Monitor IoT em Tempo Real")
 
 # 🔄 auto refresh
-st.title("🌡️ Monitor IoT em Tempo Real")
 
 st_autorefresh(interval=10000, key="refresh")
 
