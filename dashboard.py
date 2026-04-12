@@ -61,6 +61,10 @@ def carregar_dados():
 # =========================
 # 📈 DASHBOARD
 # =========================
+# =========================
+# 📈 DASHBOARD
+# =========================
+
 st.title("🌡️ Monitor IoT em Tempo Real")
 
 # 🔄 auto refresh
@@ -72,15 +76,16 @@ if not df.empty:
     ultima = df.iloc[-1]
 
     # 🔥 leitura atual
-st.subheader("📡 Leitura Atual")
+    st.subheader("📡 Leitura Atual")
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    st.metric("🌡️ Temperatura", f"{ultima.get('temperatura', 0)} °C")
+    with col1:
+        st.metric("🌡️ Temperatura", f"{ultima.get('temperatura', 0)} °C")
 
-with col2:
-    st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
+    with col2:
+        st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
+
     # 📊 gráfico simples
     st.subheader("📊 Variação")
     st.line_chart(df[["temperatura", "umidade"]])
