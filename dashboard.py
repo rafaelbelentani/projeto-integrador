@@ -91,6 +91,15 @@ with col1:
 with col2:
     st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
 
+# 🚨 ALERTA DE TEMPERATURA
+if temp >= 28:
+    st.error("🔥 ALERTA: Temperatura alta! (>= 28°C)")
+elif temp >= 26:
+    st.warning("⚠️ Atenção: Temperatura elevada")
+else:
+    st.success("✅ Temperatura normal")
+
+
 # 📊 gráfico simples
 st.subheader("📊 Variação")
 st.line_chart(df[["temperatura", "umidade"]])
