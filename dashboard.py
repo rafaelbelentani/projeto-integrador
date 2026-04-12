@@ -43,24 +43,14 @@ except Exception as e:
 # =========================
 # 📊 CARREGAR DADOS
 # =========================
-@st.cache_data(ttl=10)
-def carregar_dados():
-    if db is None:
-        return pd.DataFrame()
 
+def carregar_dados():
     docs = db.collection("leituras").stream()
 
     dados = [doc.to_dict() for doc in docs]
 
-    if len(dados) == 0:
-        return pd.DataFrame()
+    return dados
 
-    return pd.DataFrame(dados)
-
-
-# =========================
-# 📈 DASHBOARD
-# =========================
 # =========================
 # 📈 DASHBOARD
 # =========================
@@ -70,7 +60,14 @@ st.title("🌡️ Monitor IoT em Tempo Real")
 # 🔄 auto refresh
 st_autorefresh(interval=5000, key="refresh")
 
-df = carregar_dados()
+dados = carregar_dados()
+
+if not dados:
+    st.warning("Sem dados ainda no Firebase")
+    st.stop()
+
+df = pd.DataFrame(dados)
+
 
 if not df.empty:
     ultima = df.iloc[-1]
