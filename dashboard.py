@@ -67,7 +67,8 @@ def carregar_dados():
 st.title("🌡️ Monitor IoT em Tempo Real")
 
 # 🔄 auto refresh
-st_autorefresh(interval=5000, key="refresh")
+st.warning("Firebase bloqueado temporariamente (quota)")
+st.stop()
 
 dados = carregar_dados()
 
