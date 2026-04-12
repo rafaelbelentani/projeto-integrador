@@ -5,6 +5,7 @@ import pandas as pd
 import json
 from streamlit_autorefresh import st_autorefresh
 
+
 # =========================
 # 🔐 FIREBASE INIT
 # =========================
@@ -64,11 +65,11 @@ def carregar_dados():
 # 📈 DASHBOARD
 # =========================
 
-st.title("🌡️ Monitor IoT em Tempo Real")
+st.title("🌡️ MControle de Temperatura")
 
 # 🔄 auto refresh
 
-st_autorefresh(interval=10000, key="refresh")
+st_autorefresh(interval=5000, key="refresh")
 
 dados = carregar_dados()
 
@@ -78,19 +79,24 @@ if not dados:
 
 df = pd.DataFrame(dados)
 
-if not df.empty:
-    ultima = df.iloc[-1]
+# garante ordem correta
+df = df.sort_values("timestamp")
 
-    # 🔥 leitura atual
-    st.subheader("📡 Leitura Atual")
+ultima = df.iloc[-1]
 
-    col1, col2 = st.columns(2)
+st.subheader("📡 Leitura Atual")
 
-    with col1:
-        st.metric("🌡️ Temperatura", f"{ultima.get('temperatura', 0)} °C")
+col1, col2 = st.columns(2)
 
-    with col2:
-        st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
+with col1:
+    st.metric("🌡️ Temperatura", f"{ultima.get('temperatura', 0)} °C")
+
+with col2:
+    st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
+
+st.subheader("📊 Variação")
+st.line_chart(df[["temperatura", "umidade"]])
+
 
     # 📊 gráfico simples
     st.subheader("📊 Variação")
