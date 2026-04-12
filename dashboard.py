@@ -10,13 +10,11 @@ from streamlit_autorefresh import st_autorefresh
 @st.cache_resource
 def init_firebase():
     if not firebase_admin._apps:
-        cred = credentials.Certificate(dict(st.secrets["firebase"]))
+        cred_json = json.loads(st.secrets["firebase"]["credentials"])
+        cred = credentials.Certificate(cred_json)
         firebase_admin.initialize_app(cred)
 
     return firestore.client()
-
-db = init_firebase()
-
 # =========================
 # 📊 CARREGAR DADOS
 # =========================
