@@ -81,6 +81,9 @@ df = df.sort_values("timestamp")
 
 ultima = df.iloc[-1]
 
+temp = ultima.get("temperatura", 0)
+umidade = ultima.get("umidade", 0)
+
 st.subheader("📡 Leitura Atual")
 
 col1, col2 = st.columns(2)
@@ -92,6 +95,7 @@ with col2:
     st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
 
 # 🚨 ALERTA DE TEMPERATURA
+
 if temp >= 28:
     st.error("🔥 ALERTA: Temperatura alta! (>= 28°C)")
 elif temp >= 26:
