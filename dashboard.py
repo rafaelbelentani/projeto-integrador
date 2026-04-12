@@ -49,7 +49,7 @@ def carregar_dados():
         docs = (
             db.collection("leituras")
             .order_by("timestamp", direction=firestore.Query.DESCENDING)
-            .limit(30)
+            .limit(20)
             .stream()
         )
 
@@ -58,6 +58,7 @@ def carregar_dados():
     except Exception as e:
         st.error(f"Erro Firebase: {e}")
         return []
+
 
 # =========================
 # 📈 DASHBOARD
