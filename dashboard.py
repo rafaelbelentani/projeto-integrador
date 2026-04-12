@@ -72,10 +72,15 @@ if not df.empty:
     ultima = df.iloc[-1]
 
     # 🔥 leitura atual
-    st.subheader("📡 Leitura Atual")
-    st.metric("Temperatura", f"{ultima.get('temperatura', 0)} °C")
-    st.metric("Umidade", f"{ultima.get('umidade', 0)} %")
+st.subheader("📡 Leitura Atual")
 
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("🌡️ Temperatura", f"{ultima.get('temperatura', 0)} °C")
+
+with col2:
+    st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
     # 📊 gráfico simples
     st.subheader("📊 Variação")
     st.line_chart(df[["temperatura", "umidade"]])
