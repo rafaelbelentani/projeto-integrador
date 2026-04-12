@@ -1,6 +1,6 @@
+from firebase_admin import credentials, firestore
 import streamlit as st
 import firebase_admin
-from firebase_admin import credentials, firestore
 import pandas as pd
 import json
 from streamlit_autorefresh import st_autorefresh
@@ -10,14 +10,24 @@ from streamlit_autorefresh import st_autorefresh
 # =========================
 
 
+db = None
+
 @st.cache_resource
 def init_firebase():
+    global db
+
     if not firebase_admin._apps:
-        cred = credentials.Certificate(st.secrets["firebase"])
+        firebase_config = dict(st.secrets["firebase"])
+
+        # 🔥 CORREÇÃO CRÍTICA DO PRIVATE KEY
+        firebase_config["private_key"] = firebase_config["private_key"].replace("\\n", "\n")
+
+        cred = credentials.Certificate(firebase_config)
         firebase_admin.initialize_app(cred)
 
-    return firestore.client()
+        db = firestore.client()
 
+    return db
 
 
 # =========================
