@@ -5,11 +5,9 @@ import pandas as pd
 import json
 from streamlit_autorefresh import st_autorefresh
 
-
 # =========================
 # 🔐 FIREBASE INIT
 # =========================
-
 
 db = None
 
@@ -68,7 +66,6 @@ def carregar_dados():
 st.title("🌡️ MControle de Temperatura")
 
 # 🔄 auto refresh
-
 st_autorefresh(interval=5000, key="refresh")
 
 dados = carregar_dados()
@@ -94,13 +91,6 @@ with col1:
 with col2:
     st.metric("💧 Umidade", f"{ultima.get('umidade', 0)} %")
 
+# 📊 gráfico simples
 st.subheader("📊 Variação")
 st.line_chart(df[["temperatura", "umidade"]])
-
-
-    # 📊 gráfico simples
-    st.subheader("📊 Variação")
-    st.line_chart(df[["temperatura", "umidade"]])
-
-else:
-    st.warning("Sem dados ainda no Firebase")
