@@ -63,7 +63,7 @@ def carregar_dados():
 # 📈 DASHBOARD
 # =========================
 
-st.title("🌡️ MControle de Temperatura")
+st.title("🌡️ Controle de Temperatura")
 
 # 🔄 auto refresh
 st_autorefresh(interval=5000, key="refresh")
